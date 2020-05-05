@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <TimePicker
+        android:id="@+id/simpleTimePicker"
+        style="@android:style/Widget.Material.TimePicker"
+        android:layout_width="0dp"
+        android:layout_height="286dp"
+        android:layout_centerHorizontal="false"
+        android:layout_marginTop="90dp"
+        android:padding="20dp"
+        android:timePickerMode="spinner"
+        app:layout_constraintBottom_toTopOf="@+id/send_setting"
+
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <Button
+        android:id="@+id/send_setting"
+        android:layout_width="179dp"
+        android:layout_height="139dp"
+        android:text="send"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/toggle_alart"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/debug_text"
+        android:layout_width="212dp"
+        android:layout_height="114dp"
+        android:text="debug_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Switch
+        android:id="@+id/toggle_alart"
+        android:layout_width="131dp"
+        android:layout_height="53dp"
+        android:text="toggle_alart"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/send_stop"
+        android:layout_width="179dp"
+        android:layout_height="139dp"
+        android:text="STOP"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/send_setting"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/simpleTimePicker" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
