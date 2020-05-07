@@ -13,12 +13,17 @@ import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.httpPut
 import com.github.kittinunf.result.Result
+import com.google.gson.Gson
 
-import com.squareup.moshi.Moshi
 
 
 class MainActivity : AppCompatActivity() {
 
+    data class Setting(
+        var alarm: Boolean,
+        var hour: Int,
+        var minute: Int
+    )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -26,14 +31,16 @@ class MainActivity : AppCompatActivity() {
         simpleTimePicker.setIs24HourView(true)
 
 
-        //設定の読み込み
-        var alarm_setting = getSharedPreferences("Alarm", MODE_PRIVATE)
+        //設定の読み込み（古）
+
+        /*var alarm_setting = getSharedPreferences("Alarm", MODE_PRIVATE)
         simpleTimePicker.hour = alarm_setting.getInt("hour",7)
         simpleTimePicker.minute = alarm_setting.getInt("minute",0)
         toggle_alart.setChecked(
             alarm_setting.getBoolean("ON/OFF",false)
-        )
-
+        )*/
+        //設定の読み込み（新）
+        setting_load()
         //停止ボタン
         send_stop.setOnClickListener {
             "http://192.168.0.141:10458/alarm/stop".httpGet().response {request, response, result ->
@@ -50,36 +57,13 @@ class MainActivity : AppCompatActivity() {
 
             }
         }
-        //設定を変更したら送信ボタンが出現
-        simpleTimePicker.setOnTimeChangedListener { _, _,_ ->
-            send_setting.visibility = VISIBLE
-            send_stop.visibility = View.INVISIBLE
-        }
-        toggle_alart.setOnClickListener {
-            send_setting.visibility = VISIBLE
-            send_stop.visibility = View.INVISIBLE
-        }
+
 
         send_setting.setOnClickListener{
             debug_text.setText("button pushed!!")
             val alarm = toggle_alart.isChecked
             val hour = simpleTimePicker.hour
             val minute = simpleTimePicker.minute
-
-
-            /*"http://192.168.0.141:10458/test".httpGet().response {request, response, result ->
-
-                when (result) {
-                    is Result.Success -> {
-                        // レスポンスボディを表示
-                        debug_text.setText("通信しました。")
-                    }
-                    is Result.Failure -> {
-                        debug_text.setText("通信に失敗しました。")
-                    }
-                }
-
-            };*/
             //設定をサーバーに送信
                 val bodyJson = """{"alarm": $alarm,"hour": $hour,"minute": $minute}"""
                 "http://192.168.0.141:10458/alarm/set".httpPut()
@@ -99,7 +83,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 //保存処理
-                setting_save(alarm,hour,minute)
+                //setting_save(alarm,hour,minute)
             }
 
 
@@ -115,6 +99,33 @@ class MainActivity : AppCompatActivity() {
         editer.commit()
         //debug_text.setText("setting_saved!!")
     }
+    fun setting_load(){
+        //Async
+        "http://192.168.0.141:10458/alarm/get".httpGet().responseString(){request, response, result ->
+            when(result){
+                is Result.Failure ->{
+                    debug_text.setText("設定の読み込みに失敗しました。")
+                }
+                is Result.Success ->{
+                    val gson = Gson()
+                    var data = gson.fromJson(result.value, Setting::class.java)
 
+                    simpleTimePicker.hour = data.hour
+                    simpleTimePicker.minute = data.minute
+                    toggle_alart.setChecked(data.alarm)
+                    debug_text.setText("設定の読み込みに成功しました。")
+                }
+            }        //設定を変更したら送信ボタンが出現
+            //ここにあるべきではない
+            //並列で読み込まれるせいであるべきところに置くとバグります
+            simpleTimePicker.setOnTimeChangedListener { _, _,_ ->
+                send_setting.visibility = VISIBLE
+                send_stop.visibility = View.INVISIBLE
+            }
+            toggle_alart.setOnClickListener {
+                send_setting.visibility = VISIBLE
+                send_stop.visibility = View.INVISIBLE
+            }
+    }}
 
 }

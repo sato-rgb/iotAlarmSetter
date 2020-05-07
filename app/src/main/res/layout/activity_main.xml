@@ -35,8 +35,8 @@
 
     <TextView
         android:id="@+id/debug_text"
-        android:layout_width="212dp"
-        android:layout_height="114dp"
+        android:layout_width="412dp"
+        android:layout_height="218dp"
         android:text="debug_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
