@@ -1,12 +1,18 @@
 package com.example.iotalarmsetter
 
 import android.annotation.SuppressLint
+import android.icu.text.DateFormat
+import android.icu.text.SimpleDateFormat
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.util.TimeUtils
 import android.view.View
 import android.view.View.VISIBLE
+import android.widget.DatePicker
 import android.widget.TimePicker
+import androidx.annotation.RequiresApi
 import com.github.kittinunf.fuel.Fuel
 import kotlinx.android.synthetic.main.activity_main.*
 import com.github.kittinunf.fuel.httpGet
@@ -14,16 +20,19 @@ import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.httpPut
 import com.github.kittinunf.result.Result
 import com.google.gson.Gson
-
+import java.sql.Date
+import java.time.Clock
+import java.time.LocalDateTime
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
-
     data class Setting(
         var alarm: Boolean,
         var hour: Int,
         var minute: Int
     )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -58,7 +67,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-
         send_setting.setOnClickListener{
             debug_text.setText("button pushed!!")
             val alarm = toggle_alart.isChecked
@@ -82,14 +90,33 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                     }
-                //保存処理
-                //setting_save(alarm,hour,minute)
+            time_left_reload()
             }
 
 
 
     }
 
+    //アラームが鳴るまでの時間を表示する
+    fun time_left_reload(){
+
+        val hour_now = LocalDateTime.now(Clock.systemDefaultZone()).hour
+        val minute_now = LocalDateTime.now(Clock.systemDefaultZone()).minute
+        val hour_target = simpleTimePicker.hour
+        val minute_target = simpleTimePicker.minute
+        var minute_left: Int
+        var hour_left = 0
+        //分の計算
+        minute_left = minute_target - minute_now
+        if (minute_left < 0){
+            hour_left -= 1
+            minute_left +=60}
+        //時の計算
+        hour_left += hour_target - hour_now
+        if (hour_left < 0){hour_left += 24}
+
+        alarm_minutes_left.setText("${hour_left}:${minute_left} time left")
+    }
     fun setting_save (b: Boolean,h:Int,m:Int){
         var alarm_setting = getSharedPreferences("Alarm", MODE_PRIVATE)
         var editer = alarm_setting.edit()
@@ -101,7 +128,7 @@ class MainActivity : AppCompatActivity() {
     }
     fun setting_load(){
         //Async
-        "http://192.168.0.141:10458/alarm/get".httpGet().responseString(){request, response, result ->
+        "http://192.168.0.141:10458/alarm/get".httpGet().responseString(){ _, _, result ->
             when(result){
                 is Result.Failure ->{
                     debug_text.setText("設定の読み込みに失敗しました。")
@@ -126,6 +153,7 @@ class MainActivity : AppCompatActivity() {
                 send_setting.visibility = VISIBLE
                 send_stop.visibility = View.INVISIBLE
             }
-    }}
+            time_left_reload()
+        }}
 
 }

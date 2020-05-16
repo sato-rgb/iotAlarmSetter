@@ -61,4 +61,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/simpleTimePicker" />
 
+    <TextView
+        android:id="@+id/alarm_minutes_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="alarm_minutes_left"
+        app:layout_constraintBottom_toBottomOf="@+id/debug_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
