@@ -1,3 +1,6 @@
+ext {
+    buildToolsVersion = '29.0.0'
+}
 apply plugin: 'com.android.application'
 
 apply plugin: 'kotlin-android'
@@ -6,7 +9,7 @@ apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 29
-    buildToolsVersion "29.0.0"
+    buildToolsVersion '29.0.0'
     defaultConfig {
         applicationId "com.example.iotalarmsetter"
         minSdkVersion 28
@@ -17,9 +20,14 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    compileOptions {
+        sourceCompatibility = "1.8"
+        targetCompatibility = "1.8"
     }
 }
 
