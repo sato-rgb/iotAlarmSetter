@@ -5,30 +5,54 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.View.VISIBLE
+import android.widget.NumberPicker
 import androidx.appcompat.app.AppCompatDelegate
 import kotlinx.android.synthetic.main.activity_main.*
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPut
 import com.github.kittinunf.result.Result
 import com.google.gson.Gson
-import java.time.Clock
-import java.time.LocalDateTime
-
+import java.time.LocalTime
+import kotlin.math.absoluteValue
 
 
 class MainActivity : AppCompatActivity() {
+    //サーバーとの通信に使用する
     data class Setting(
         var alarm: Boolean,
         var hour: Int,
-        var minute: Int
+        var minute: Int,
+        var secondary_alarm:Boolean,
+        var secondary_alarm_offset:Int
     )
+    private fun stopToSend(){
+        send_setting.visibility = VISIBLE
+        send_stop.visibility = View.INVISIBLE
+    }
+    private fun uiBehaviorSet(){
 
-    fun secondary_alarm_set(){
+        simpleTimePicker.setIs24HourView(true)
+        simpleTimePicker.setOnTimeChangedListener { _, _,_ ->
+            stopToSend()
+            time_left_reload()
+        }
+
+        togglePlaimaryAlart.setOnClickListener {
+            stopToSend()
+        }
+
         secondaryAlarmOffset.maxValue = 90
         secondaryAlarmOffset.minValue = 0
         secondaryAlarmOffset.wrapSelectorWheel =false
+        secondaryAlarmOffset.setOnValueChangedListener { numberPicker: NumberPicker, i: Int, i1: Int ->
+            time_left_reload()
+        }
 
+        secondaryAlarmOffsetIsPlus.setOnCheckedChangeListener { compoundButton, b ->
+            time_left_reload()
+        }
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,8 +60,6 @@ class MainActivity : AppCompatActivity() {
         //theme_related()
         Log.d("NightMode","${AppCompatDelegate.getDefaultNightMode()}")
         setContentView(R.layout.activity_main)
-        simpleTimePicker.setIs24HourView(true)
-        secondary_alarm_set()
 
             //設定の読み込み（古）
 
@@ -68,11 +90,19 @@ class MainActivity : AppCompatActivity() {
 
         send_setting.setOnClickListener{
             debug_text.text = "button pushed!!"
-            val alarm = toggle_alart.isChecked
+            val alarm = togglePlaimaryAlart.isChecked
             val hour = simpleTimePicker.hour
             val minute = simpleTimePicker.minute
+            val secondary_offset = offset_parse()
+            val setting =Setting(togglePlaimaryAlart.isChecked,
+                                 simpleTimePicker.hour,
+                                 simpleTimePicker.minute,
+                                 toggleSecondaryAlart.isChecked,
+                                 offset_parse()
+            )
             //設定をサーバーに送信
-                val bodyJson = """{"alarm": $alarm,"hour": $hour,"minute": $minute}"""
+            val gson = Gson()
+            val bodyJson = gson.toJson(setting)
                 "http://192.168.0.141:10458/alarm/set".httpPut()
                     .header("Content-Type" to "application/json")
                     .body(bodyJson)
@@ -101,27 +131,27 @@ class MainActivity : AppCompatActivity() {
         time_left_reload()
     }
 
+    fun offset_parse():Int{
+          when(secondaryAlarmOffsetIsPlus.isChecked){
+            true ->{
+                return secondaryAlarmOffset.getValue()
+            }
+            false ->{
+                return -(secondaryAlarmOffset.getValue())
+            }
+        }
+    }
     //アラームが鳴るまでの時間を表示する
     fun time_left_reload(){
         //primary
-        val hour_now = LocalDateTime.now(Clock.systemDefaultZone()).hour
-        val minute_now = LocalDateTime.now(Clock.systemDefaultZone()).minute
-        val hour_target = simpleTimePicker.hour
-        val minute_target = simpleTimePicker.minute
-        var minute_left: Int
-        var hour_left = 0
-        //分の計算
-        minute_left = minute_target - minute_now
-        if (minute_left < 0){
-            hour_left -= 1
-            minute_left +=60}
-        //時の計算
-        hour_left += hour_target - hour_now
-        if (hour_left < 0){hour_left += 24}
-
-        primaryAlarmLeft.text = "${hour_left}:${minute_left} time left"
-        //以下secondary
-
+        val now = LocalTime.now()
+        val target = LocalTime.of(simpleTimePicker.hour,simpleTimePicker.minute)
+        var date = target.minusHours(now.hour.toLong())
+                         .minusMinutes(now.minute.toLong())
+        primaryAlarmLeft.text = "Primary ${date.hour}:${date.minute} time left"
+        //secondary
+        val secondry = date.plusMinutes(offset_parse().toLong())
+        secondryAlarnLeft.text = "Secondry ${secondry.hour}:${secondry.minute} time left"
     }
 
     fun setting_load(){
@@ -134,24 +164,18 @@ class MainActivity : AppCompatActivity() {
                 is Result.Success ->{
                     val gson = Gson()
                     var data = gson.fromJson(result.value, Setting::class.java)
-
+                    //設定をサーバーから受信
+                    togglePlaimaryAlart.isChecked = data.alarm
                     simpleTimePicker.hour = data.hour
                     simpleTimePicker.minute = data.minute
-                    toggle_alart.isChecked = data.alarm
+                    toggleSecondaryAlart.isChecked = data.secondary_alarm
+                    secondaryAlarmOffset.value = data.secondary_alarm_offset.absoluteValue
+                    secondaryAlarmOffsetIsPlus.isChecked = if (data.secondary_alarm_offset >= 0) true else false
                     debug_text.text = "設定の読み込みに成功しました。"
                 }
-            }        //設定を変更したら送信ボタンが出現し鳴るまでの時間が更新される
-            //ここにあるべきではない
-            //並列で読み込まれるせいであるべきところに置くとバグります
-            simpleTimePicker.setOnTimeChangedListener { _, _,_ ->
-                send_setting.visibility = VISIBLE
-                send_stop.visibility = View.INVISIBLE
-                time_left_reload()
             }
-            toggle_alart.setOnClickListener {
-                send_setting.visibility = VISIBLE
-                send_stop.visibility = View.INVISIBLE
-            }
+            //並列でUIの設定をする
+            uiBehaviorSet()
             time_left_reload()
         }}
 

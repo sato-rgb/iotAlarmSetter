@@ -37,7 +37,7 @@
         android:layout_height="139dp"
         android:text="send"
         android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/toggle_alart"
+        app:layout_constraintBottom_toTopOf="@+id/togglePlaimaryAlart"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -52,12 +52,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Switch
-        android:id="@+id/toggle_alart"
+        android:id="@+id/togglePlaimaryAlart"
         android:layout_width="131dp"
         android:layout_height="53dp"
-        android:text="toggle_alart"
+        android:layout_marginStart="64dp"
+        android:text="Plaimary"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
@@ -82,16 +82,16 @@
         app:layout_constraintTop_toBottomOf="@+id/debug_text" />
 
     <ToggleButton
-        android:id="@+id/secondryAlarnLeftIsPlus"
-        android:layout_width="45dp"
-        android:layout_height="50dp"
-        android:background="#DCECF3"
+        android:id="@+id/secondaryAlarmOffsetIsPlus"
+        android:layout_width="40dp"
+        android:layout_height="44dp"
+        android:background="@null"
         android:textOff="-"
         android:textOn="+"
+        android:textSize="36sp"
         app:layout_constraintBottom_toBottomOf="@+id/secondaryAlarmOffset"
         app:layout_constraintEnd_toStartOf="@+id/secondaryAlarmOffset"
-        app:layout_constraintStart_toEndOf="@+id/debug_text"
-        app:layout_constraintTop_toTopOf="@+id/secondaryAlarmOffset" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/secondryAlarnLeft"
@@ -102,5 +102,14 @@
         app:layout_constraintBottom_toTopOf="@+id/simpleTimePicker"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Switch
+        android:id="@+id/toggleSecondaryAlart"
+        android:layout_width="116dp"
+        android:layout_height="54dp"
+        android:text="Secondary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/togglePlaimaryAlart" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
