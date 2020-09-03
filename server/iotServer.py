@@ -15,6 +15,9 @@ app = Flask(__name__)
 alarm_thread_bool = False
 alarm_thread_hour = 99
 alarm_thread_minute = 99
+secondary_alarm = False
+secondary_alarm_offset = 0
+
 #MOUOKITA = False
 
 
@@ -26,12 +29,14 @@ def alarm_set():
             global alarm_thread_bool
             global alarm_thread_hour
             global alarm_thread_minute
+            global secondary_alarm
+            global secondary_alarm_offset
             alarm_thread_bool = req['alarm']
-            print("?")
             alarm_thread_hour = req['hour']
-            print("?")
             alarm_thread_minute = req['minute']
-            print("?")
+            secondary_alarm = req['secondary_alarm']
+            secondary_alarm_offset = req['secondary_alarm_offset']
+
             if alarm_thread_bool == True:
                 print("TrueTrueTrueTrueTrueTrue")
                 return jsonify(result={"status": 200})
@@ -69,12 +74,18 @@ def alarm_stop():
     GPIO.output(ALARM_PIN, False)
     return jsonify(result={"status": 200})
 
+
 @app.route('/alarm/get')
 def alarm_get():
     global alarm_thread_bool
     global alarm_thread_hour
     global alarm_thread_minute
-    return jsonify({"alarm": alarm_thread_bool,"hour": alarm_thread_hour,"minute": alarm_thread_minute})
+    return jsonify({"alarm": alarm_thread_bool,
+                    "hour": alarm_thread_hour,
+                    "minute": alarm_thread_minute,
+                    "secondary_alarm": secondary_alarm,
+                    "secondary_alarm_offset": secondary_alarm_offset
+                    })
 
 
 if __name__ == '__main__':
