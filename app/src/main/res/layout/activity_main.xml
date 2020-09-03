@@ -12,16 +12,24 @@
         android:layout_width="0dp"
         android:layout_height="286dp"
         android:layout_centerHorizontal="false"
-        android:layout_marginTop="90dp"
         android:padding="20dp"
         android:timePickerMode="spinner"
+
+
         app:layout_constraintBottom_toTopOf="@+id/send_setting"
-
-
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/debug_text"
         app:layout_constraintVertical_bias="1.0" />
+
+    <NumberPicker
+        android:id="@+id/secondaryAlarmOffset"
+        android:layout_width="57dp"
+        android:layout_height="107dp"
+        app:layout_constraintBottom_toBottomOf="@+id/debug_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/send_setting"
@@ -35,9 +43,11 @@
 
     <TextView
         android:id="@+id/debug_text"
-        android:layout_width="412dp"
-        android:layout_height="218dp"
+        android:layout_width="305dp"
+        android:layout_height="120dp"
         android:text="debug_text"
+        app:layout_constraintEnd_toStartOf="@+id/secondaryAlarmOffset"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -62,20 +72,35 @@
         app:layout_constraintTop_toBottomOf="@+id/simpleTimePicker" />
 
     <TextView
-        android:id="@+id/alarm_minutes_left"
+        android:id="@+id/primaryAlarmLeft"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="alarm_minutes_left"
-        app:layout_constraintBottom_toBottomOf="@+id/debug_text"
+        android:text="primaryAlarmLeft"
+        app:layout_constraintBottom_toTopOf="@+id/secondryAlarnLeft"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/debug_text" />
+
+    <ToggleButton
+        android:id="@+id/secondryAlarnLeftIsPlus"
+        android:layout_width="45dp"
+        android:layout_height="50dp"
+        android:background="#DCECF3"
+        android:textOff="-"
+        android:textOn="+"
+        app:layout_constraintBottom_toBottomOf="@+id/secondaryAlarmOffset"
+        app:layout_constraintEnd_toStartOf="@+id/secondaryAlarmOffset"
+        app:layout_constraintStart_toEndOf="@+id/debug_text"
+        app:layout_constraintTop_toTopOf="@+id/secondaryAlarmOffset" />
+
+    <TextView
+        android:id="@+id/secondryAlarnLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="28dp"
+        android:text="secondryAlarnLeft"
+        app:layout_constraintBottom_toTopOf="@+id/simpleTimePicker"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/toggle_dark"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="DARK"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

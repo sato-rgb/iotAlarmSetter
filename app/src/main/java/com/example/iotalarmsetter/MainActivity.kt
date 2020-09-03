@@ -1,30 +1,19 @@
 package com.example.iotalarmsetter
 
-import android.annotation.SuppressLint
-import android.icu.text.DateFormat
-import android.icu.text.SimpleDateFormat
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.util.TimeUtils
 import android.view.View
 import android.view.View.VISIBLE
-import android.widget.DatePicker
-import android.widget.TimePicker
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatDelegate
-import com.github.kittinunf.fuel.Fuel
 import kotlinx.android.synthetic.main.activity_main.*
 import com.github.kittinunf.fuel.httpGet
-import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.httpPut
 import com.github.kittinunf.result.Result
 import com.google.gson.Gson
-import java.sql.Date
 import java.time.Clock
 import java.time.LocalDateTime
-import java.util.*
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -33,16 +22,22 @@ class MainActivity : AppCompatActivity() {
         var hour: Int,
         var minute: Int
     )
+
+    fun secondary_alarm_set(){
+        secondaryAlarmOffset.maxValue = 90
+        secondaryAlarmOffset.minValue = 0
+        secondaryAlarmOffset.wrapSelectorWheel =false
+
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         //theme_related()
         Log.d("NightMode","${AppCompatDelegate.getDefaultNightMode()}")
         setContentView(R.layout.activity_main)
-
         simpleTimePicker.setIs24HourView(true)
-
-
+        secondary_alarm_set()
 
             //設定の読み込み（古）
 
@@ -108,7 +103,7 @@ class MainActivity : AppCompatActivity() {
 
     //アラームが鳴るまでの時間を表示する
     fun time_left_reload(){
-
+        //primary
         val hour_now = LocalDateTime.now(Clock.systemDefaultZone()).hour
         val minute_now = LocalDateTime.now(Clock.systemDefaultZone()).minute
         val hour_target = simpleTimePicker.hour
@@ -124,17 +119,11 @@ class MainActivity : AppCompatActivity() {
         hour_left += hour_target - hour_now
         if (hour_left < 0){hour_left += 24}
 
-        alarm_minutes_left.text = "${hour_left}:${minute_left} time left"
+        primaryAlarmLeft.text = "${hour_left}:${minute_left} time left"
+        //以下secondary
+
     }
-    fun setting_save (b: Boolean,h:Int,m:Int){
-        var alarm_setting = getSharedPreferences("Alarm", MODE_PRIVATE)
-        var editer = alarm_setting.edit()
-        editer.putBoolean("ON/OFF",b)
-        editer.putInt("hour",h)
-        editer.putInt("minute",m)
-        editer.commit()
-        //debug_text.setText("setting_saved!!")
-    }
+
     fun setting_load(){
         //Async
         "http://192.168.0.141:10458/alarm/get".httpGet().responseString { _, _, result ->
@@ -166,32 +155,6 @@ class MainActivity : AppCompatActivity() {
             time_left_reload()
         }}
 
-    fun theme_related(){
-        val theme = getSharedPreferences("dark", MODE_PRIVATE)
-        val editor = theme.edit()
-        val j = theme.getBoolean("need_dark",false)
-        when (j) {
-            true -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                editor.putBoolean("need_dark",true)
-            }
-            else -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                editor.putBoolean("need_dark",false)
-            }}
-        toggle_dark.setOnClickListener{
-            val i = theme.getBoolean("need_dark",false)
-            when (i) {
-                true -> {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                    editor.putBoolean("need_dark",true)
-                }
-                else -> {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                    editor.putBoolean("need_dark",false)
-                }
-            }
-        }}
     }
 
 
